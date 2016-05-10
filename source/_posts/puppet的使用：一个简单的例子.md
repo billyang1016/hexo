@@ -20,12 +20,14 @@ categories:
     touch /etc/puppet/manifests/site.pp
 内容如下：
 
-    file { '/root/tmp/hello':
+     node 'agentHostname' {
+        file { '/root/tmp/hello':
             owner => 'root',
             group => 'root',
             mode => '0440',
             source => 'puppet:///modules/puppet-example/hello'
             }
+        }
 
 ### 启动agent
 在agent上执行如下命令：
