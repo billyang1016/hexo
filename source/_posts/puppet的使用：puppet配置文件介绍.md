@@ -4,7 +4,7 @@ date: 2016-05-08 16:59:08
 tags:
 - puppet
 categories:
-- puppet
+- 技术
 ---
 puppet master及agent配置文件简介。
 

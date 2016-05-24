@@ -4,7 +4,7 @@ date: 2016-05-11 00:09:44
 tags:
 - puppet
 categories:
-- puppet
+- 技术
 ---
 介绍puppet的目录结构
 <!-- more -->

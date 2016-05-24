@@ -4,7 +4,7 @@ date: 2016-05-08 21:34:28
 tags:
 - puppet
 categories:
-- puppet
+- 技术
 ---
 puppet资源的相关概念。
 

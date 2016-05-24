@@ -4,7 +4,7 @@ date: 2016-05-08 16:29:20
 tags:
 - puppet
 categories:
-- puppet
+- 技术
 ---
 puppet master及agent的安装。
 

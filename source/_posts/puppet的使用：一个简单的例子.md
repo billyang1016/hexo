@@ -4,7 +4,7 @@ date: 2016-05-08 17:14:05
 tags:
 - puppet
 categories:
-- puppet
+- 技术
 ---
 一个简单的示例：将master节点上的一个文件放至agent节点上。
 <!-- more -->

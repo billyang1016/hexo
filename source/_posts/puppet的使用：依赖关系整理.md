@@ -4,7 +4,7 @@ date: 2016-05-08 21:45:33
 tags:
 - puppet
 categories:
-- puppet
+- 技术
 ---
 puppet中的依赖关系整理。
 
