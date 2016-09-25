@@ -2,9 +2,9 @@
 title: ansible使用记录
 date: 2016-09-25 12:47:26
 tags:
-- 技术
-categories:
 - ansible
+categories:
+- 技术
 ---
 ansible使用记录。
 <!-- more -->

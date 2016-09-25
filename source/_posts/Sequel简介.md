@@ -1,14 +1,10 @@
-### 
-
-模型实例由主键标识。
-Sequel使用数据库的概念来检索数据。一个数据集对象封装了一个SQL查询并且支持关联（原文是supports chainability，意思应该是关联），使你能够通过简洁灵活的Ruby DSL来方便的获取数据。
 ---
 title: Sequel简介
 date: 2016-09-25 13:20:39
 tags:
-- 技术
-categories:
 - ruby
+categories:
+- 技术
 ---
 Sequel README翻译。
 <!-- more -->
