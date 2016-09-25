@@ -2,7 +2,8 @@
 title: Sequel简介
 date: 2016-09-25 13:20:39
 tags:
-- ruby
+- Ruby
+- Sequel
 categories:
 - 技术
 ---
