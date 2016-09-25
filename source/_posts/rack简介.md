@@ -2,7 +2,7 @@
 title: rack简介
 date: 2016-09-24 23:45:59
 tags:
-- ruby
+- Ruby
 categories:
 - 技术
 ---
