@@ -3,6 +3,7 @@ title: rack简介
 date: 2016-09-24 23:45:59
 tags:
 - Ruby
+- RESTful
 categories:
 - 技术
 ---
