@@ -8,7 +8,7 @@ tags:
 categories:
 - 技术
 ---
-Grape介绍。
+Grape基础介绍。
 <!-- more -->
 # 什么是Grape
 Grape是Ruby中的一个类REST API框架，被设计用于运行在Rack上或弥补已有的web应用框架（比如Rails或者Sinatra），Grape提供了一个简单的DSL用于方便的开发RESTful APIs。Grape支持common conventions，包括多种格式，子域/前缀限制，内容协商，版本控制等。

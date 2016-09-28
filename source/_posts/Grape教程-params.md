@@ -354,7 +354,6 @@ end
 ```
 
 ### JSON类型
-
 Grape支持JSON格式的复杂类型参数，使用type: JSON声明，JSON对象和数组都可以被接受，在两种情况下，内置的校验规则对所有的对象（JSON对象或JSON数组中的所有对象）都适用。（Grape supports complex parameters given as JSON-formatted strings using the special type: JSON declaration. JSON objects and arrays of objects are accepted equally, with nested validation rules applied to all objects in either case）：
 ```
 params do
@@ -386,6 +385,7 @@ get '/' do
 end
 ```
 For stricter control over the type of JSON structure which may be supplied, use type: Array, coerce_with: JSON or type: Hash, coerce_with: JSON.
+
 ### 允许多种类型
 多类型参数可以使用types来声明，而不是使用type：
 ```
@@ -470,3 +470,195 @@ end
 ```
 
 ### 内置的验证方法
+#### allow_blank
+参数定义中也可以使用allow_blank，用以保证参数有值。默认情况下，requires只检查请求中包含了指定的参数，但是忽略它的值，通过指定allow_blank: false，空值和只包含空白符的值将是无效的。
+allow_blank可以和requires/optional结合使用，如果参数是必须的，那么就必须包含一个值；如果是可选的，那么请求中如果含有这个参数时，它的值必须不能是空字符串或者空白符。
+```
+params do
+  requires :username, allow_blank: false
+  optional :first_name, allow_blank: false
+end
+```
+
+#### values
+通过:values选项，参数可以被限制为一组特定的值。
+Default values are eagerly evaluated. Above :non_random_number will evaluate to the same number for each call to the endpoint of this params block. To have the default evaluate lazily with each request use a lambda, like :random_number above.
+```
+params do
+  requires :status, type: Symbol, values: [:not_started, :processing, :done]
+  optional :numbers, type: Array[Integer], default: 1, values: [1, 2, 3, 5, 8]
+end
+```
+可以给:values选项提供一个范围参数：
+```
+params do
+  requires :latitude, type: Float, values: -90.0..+90.0
+  requires :longitude, type: Float, values: -180.0..+180.0
+  optional :letters, type: Array[String], values: 'a'..'z'
+end
+```
+注意，range的起始值类型必须和:type指定的匹配（如果没有提供:type选项，结束值的类型和开始值的类型必须相同），下面的例子是非法的：
+```
+params do
+  requires :invalid1, type: Float, values: 0..10 # 0.kind_of?(Float) => false
+  optional :invalid2, values: 0..10.0 # 10.0.kind_of?(0.class) => false
+end
+```
+也可以给:values选项提供一个Proc对象，在每个请求中进行求值：
+```
+params do
+  requires :hashtag, type: String, values: -> { Hashtag.all.map(&:tag) }
+end
+```
+也可以通过except选项来限制不能包含哪些值，except接受相同类型的参数作为值（Procs, ranges，等）：
+```
+params do
+  requires :browsers, values: { except: [ 'ie6', 'ie7', 'ie8' ] }
+end
+```
+values和except可以结合使用，用以指定哪些值能接受，哪些不能接受。可以分别为except和value自定义不同的错误消息，用于指定值落在了except中或者不在value中：
+```
+params do
+  requires :number, type: Integer, values: { value: 1..20 except: [4,13], except_message: 'includes unsafe numbers', message: 'is outside the range of numbers allowed' }
+end
+```
+#### 正则表达式
+通过:regexp选项，可以将参数限制为和正则表达式匹配，如果不匹配将会返回一个错误，正则表达式选项对requires和optinal参数都有效。
+```
+params do
+  requires :email, regexp: /.+@.+/
+end
+```
+当参数不包含值时，校验是能通过的。为了保证参数包含值，可以使用alow_blank: false。
+```
+params do
+  requires :email, allow_blank: false, regexp: /.+@.+/
+end
+```
+
+#### 互斥
+参数可以通过mutually_exclusive定义为互斥，保证不会出现在同一个请求中：
+```
+params do
+  optional :beer
+  optional :wine
+  mutually_exclusive :beer, :wine
+end
+```
+可以定义多组：
+```
+params do
+  optional :beer
+  optional :wine
+  mutually_exclusive :beer, :wine
+  optional :scotch
+  optional :aquavit
+  mutually_exclusive :scotch, :aquavit
+end
+```
+**警告：永远不要将两个必须的参数设置为互斥，否则将导致参数永远无效；一个必须的参数和一个可选的参数互斥，会导致后一个参数用于无效**
+
+#### 正好有一个
+通过exactly_one_of可以指定正好有一个参数被提供：
+```
+params do
+  optional :beer
+  optional :wine
+  exactly_one_of :beer, :wine
+end
+```
+#### 至少有一个
+at_least_one_of选项保证至少有一个参数被提供：
+```
+params do
+  optional :beer
+  optional :wine
+  optional :juice
+  at_least_one_of :beer, :wine, :juice
+end
+```
+
+#### 都提供或都不提供
+可以通过all_or_none_of选项指定所有参数都提供或都不提供。
+```
+params do
+  optional :beer
+  optional :wine
+  optional :juice
+  all_or_none_of :beer, :wine, :juice
+end
+```
+
+#### 嵌套的mutually_exclusive, exactly_one_of, at_least_one_of, all_or_none_of
+所有的这些方法都一个在任何嵌套层使用：
+```
+params do
+  requires :food do
+    optional :meat
+    optional :fish
+    optional :rice
+    at_least_one_of :meat, :fish, :rice
+  end
+  group :drink do
+    optional :beer
+    optional :wine
+    optional :juice
+    exactly_one_of :beer, :wine, :juice
+  end
+  optional :dessert do
+    optional :cake
+    optional :icecream
+    mutually_exclusive :cake, :icecream
+  end
+  optional :recipe do
+    optional :oil
+    optional :meat
+    all_or_none_of :oil, :meat
+  end
+end
+```
+### 命名空间校验和转换
+命名空间允许在每个方法中通过命名空间定义和使用参数。
+```
+namespace :statuses do
+  params do
+    requires :user_id, type: Integer, desc: 'A user ID.'
+  end
+  namespace ':user_id' do
+    desc "Retrieve a user's status."
+    params do
+      requires :status_id, type: Integer, desc: 'A status ID.'
+    end
+    get ':status_id' do
+      User.find(params[:user_id]).statuses.find(params[:status_id])
+    end
+  end
+end
+```
+namespace方法有好几个别名，包括：group, resource, resources, and segment。你可以选择一个你喜欢的。
+通过route_param你可以方便的定义一个路由参数作为命名空间：
+```
+namespace :statuses do
+  route_param :id do
+    desc 'Returns all replies for a status.'
+    get 'replies' do
+      Status.find(params[:id]).replies
+    end
+    desc 'Returns a status.'
+    get do
+      Status.find(params[:id])
+    end
+  end
+end
+```
+You can also define a route parameter type by passing to route_param's options.
+```
+namespace :arithmetic do
+  route_param :n, type: Integer do
+    desc 'Returns in power'
+    get 'power' do
+      params[:n] ** params[:n]
+    end
+  end
+end
+```
